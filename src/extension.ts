@@ -6,17 +6,32 @@ import * as vscode from 'vscode';
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "testcafe-extension" is now active!');
+	let disposable = vscode.commands.registerCommand('testcafe-extension.start', () => {
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('testcafe-extension.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from TestCafe extension!');
+        // ANT: Hämtar filen man har i fokus
+        var filePath = vscode.window.activeTextEditor?.document;
+
+        // Function: GetPageSite()
+        // !! Temporär metod att hämta ut vilken sida testCafe ska köras på
+        let text = filePath?.getText();
+        var site = text?.substring(
+            text.indexOf("page[") + 5, 
+            text.lastIndexOf("]page")
+        ).trim();
+        console.log(site);  // DEBUG: Kollar page som hämtades
+
+        
+
+        
+
+        // ANT: Hämtar alla symboler som finns i filen
+        // vscode.commands.executeCommand<vscode.DocumentSymbol[]>("vscode.executeDocumentSymbolProvider", filePath?.uri)
+        //     .then( (dsp:vscode.DocumentSymbol[]) => {
+        //         for (const x of dsp) {
+        //             console.log(x)
+        //         }
+        //     })
+
 	});
 
 	context.subscriptions.push(disposable);

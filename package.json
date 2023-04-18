@@ -14,8 +14,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "testcafe-extension.helloWorld",
-        "title": "Hello World"
+        "command": "testcafe-extension.start",
+        "title": "scan"
       }
     ]
   },
