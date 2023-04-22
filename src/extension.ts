@@ -51,6 +51,14 @@ export function activate(context: vscode.ExtensionContext) {
             //         console.log("Could not get text")
             //     }
             // }
+
+            // - Öppna inputBox
+            // - Ta emot URL input
+            // - används axios för att koppa till hemsdian
+            //      * Ska den klara av filer?
+            // - Använd cheerio för att plocka ut DOM element
+            // - Skapa ny fil om det inte finns
+            // - skriv till filen 
                 
                 
             var workingDictPath = vscode.workspace.workspaceFolders[0].uri;
@@ -64,20 +72,17 @@ export function activate(context: vscode.ExtensionContext) {
             //       den nuvarande filen med ingenting.
             edit.createFile(newFileUri, {overwrite : true, ignoreIfExists : false});
             
+            // ##### Början av inputen #####
             vscode.window.showInputBox().then( (input) => {
 
-                
                 if (input) {
                     edit.insert(newFileUri, new vscode.Position(0, 0), input);
                 }
-                edit.insert(newFileUri, new vscode.Position(10, 10), "TEST");
                 
                 vscode.workspace.applyEdit( edit ).then((applyRes) =>  {
-                    
-                    if (!applyRes) { console.log("Apply failed") }
+                    if (!applyRes) { console.log("Apply failed") }  // LOG
     
                 }).then( () => {
-    
                     vscode.workspace.openTextDocument(newFileUri).then( (doc) => {
                         console.log(doc.getText());
                         doc.save();
