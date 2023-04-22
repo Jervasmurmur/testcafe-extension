@@ -5,6 +5,10 @@ import { promises } from 'dns';
 import { resolve } from 'path';
 import * as vscode from 'vscode';
 import { window } from 'vscode';
+import * as cheerio from 'cheerio';
+import * as fs from 'fs';
+import axios from 'axios';
+
 
 
 // This method is called when your extension is activated
@@ -13,25 +17,61 @@ export function activate(context: vscode.ExtensionContext) {
 
 	let disposable = vscode.commands.registerCommand('testcafe-extension.start', () => {
 
-        // // ANT: Hämtar filen man har i fokus
-        // var filePath = vscode.window.activeTextEditor.document;
+        /** ____Instruktionner____
+         * # Input
+         *      - Öppna input box
+         *      - Mata in en URL
+         * 
+         * # Parse
+         *      - Öppna sida med axios
+         *      - Selecta alla grafiska komponenter
+         *      - Gå igenom dom var för sig
+         *      - Plocka ut datan ifrån deras attribut: data-test
+         *      - EX: [ {graphicalDOM: "Button", dataAttr: "knapp1"}, {graphicalDOM: "Button", dataAttr: "knapp2"}, ... ]
+         * 
+         * # Write
+         *      - Skapa en ny fil om det inte finns
+         *      - Skriv till filen
+         */
 
-        // // Function: GetPageSite()
-        // // !! Temporär metod att hämta ut vilken sida testCafe ska köras på
-        // let text = filePath?.getText();
-        // var site = text?.substring(
-        //     text.indexOf("page[") + 5, 
-        //     text.lastIndexOf("]page")
-        // ).trim();
-        // console.log(site);  // DEBUG: Kollar page som hämtades
         
+        /** ____Page model filen struktur____
+         * - var1 = button
+         * - var2 = "knapp1"
+         * class Page {
+                readonly button_knapp1;
+                
+                constructor () {
+                    this.button_knapp1 = Selector('button[data-test="knapp1"]');
+                }
+            }
+
+            export default new Page();  
+         */
+
+        const data = fs.readFileSync('C:/Users/anton/Documents/kod mapp/test/testCafé testing/fancy_site.html');
+        const $ = cheerio.load(data);
+        let element = $("button");
+        element.each( (i, el) => {
+            let res = $(el).attr("data-test");
+            console.log(res);
+            console.log("-----------")
+        }) 
+
+        // axios
+        //     .get("https://devexpress.github.io/testcafe/example/")
+        //     .then((response) => {
+        //         const $ = cheerio.load(response.data);
+        //         $("p").each( (index, element) => {
+        //             console.log(index);
+        //             console.log(element);
+        //         })
+        //     })
+        //     .catch((err) => console.log("Fetch error " + err));
         
-        // NOTE: input kan vara undifiend så ha 'if(input)' för att plocka upp den
-        // ANT: Öppnar en ny ruta för att ta in data
-        
-        
-        // ANT: Den borde hämta nuvarande Uri som defualt men om nåt annas har angivis i settings
+        // IDÉ: Den borde hämta nuvarande Uri som defualt men om nåt annas har angivis i settings
         //      så borde den hämta Uri ifrån setttings.
+        /*
         if(vscode.workspace.workspaceFolders !== undefined) {
               
 
@@ -51,14 +91,6 @@ export function activate(context: vscode.ExtensionContext) {
             //         console.log("Could not get text")
             //     }
             // }
-
-            // - Öppna inputBox
-            // - Ta emot URL input
-            // - används axios för att koppa till hemsdian
-            //      * Ska den klara av filer?
-            // - Använd cheerio för att plocka ut DOM element
-            // - Skapa ny fil om det inte finns
-            // - skriv till filen 
                 
                 
             var workingDictPath = vscode.workspace.workspaceFolders[0].uri;
@@ -72,8 +104,12 @@ export function activate(context: vscode.ExtensionContext) {
             //       den nuvarande filen med ingenting.
             edit.createFile(newFileUri, {overwrite : true, ignoreIfExists : false});
             
+
             // ##### Början av inputen #####
             vscode.window.showInputBox().then( (input) => {
+
+                let url = input;
+
 
                 if (input) {
                     edit.insert(newFileUri, new vscode.Position(0, 0), input);
@@ -93,19 +129,7 @@ export function activate(context: vscode.ExtensionContext) {
             })
 
         }
-
-
-        
-
-        
-
-        // ANT: Hämtar alla symboler som finns i filen
-        // vscode.commands.executeCommand<vscode.DocumentSymbol[]>("vscode.executeDocumentSymbolProvider", filePath?.uri)
-        //     .then( (dsp:vscode.DocumentSymbol[]) => {
-        //         for (const x of dsp) {
-        //             console.log(x)
-        //         }
-        //     })
+        */
 
 	});
 
