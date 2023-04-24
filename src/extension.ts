@@ -56,6 +56,21 @@ function writePageModel(pageModelElements:graphicalDOM[]) {
     return pageModel;
 }
 
+function parseCheerio(selector:cheerio.Root, selectElement:string, attribut:string) {
+    var pageModelElements: graphicalDOM[] = []
+    let res = selector(selectElement);
+    res.each( (index:number, element:cheerio.Element) => {
+        let attrValue = selector(element).attr(attribut)
+
+        if (attrValue) {
+            pageModelElements.push( new graphicalDOM(selectElement, attrValue) )
+        } else {
+            console.log("element (*visa väg dit) didnt have data-test (*eller annan angiven attribut)");
+        }
+    }) 
+    return pageModelElements;
+}
+
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -112,18 +127,8 @@ export function activate(context: vscode.ExtensionContext) {
 
                         var pageModelElements: graphicalDOM[] = [];
 
-                        // ******** getElement() ********
-                        var select = "button";
-                        let element = $(select);
-                        element.each( (i, el) => {
-                            let res = $(el).attr("data-test");
-                            if (res) {
-                                pageModelElements.push( new graphicalDOM(select, res) )
-                            } else {
-                                console.log("element (*visa väg dit) didnt have data-test (*eller annan angiven attribut)");
-                            }
-                        })
-                        // ******** getElement() ******** 
+                        pageModelElements.push.apply(pageModelElements, parseCheerio($, "button", "data-test"));
+                        pageModelElements.push.apply(pageModelElements, parseCheerio($, "input", "data-test"));
                         
                         var edit = new vscode.WorkspaceEdit();
 
