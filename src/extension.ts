@@ -77,33 +77,6 @@ function parseCheerio(selector:cheerio.Root, selectElement:string, attribut:stri
 export function activate(context: vscode.ExtensionContext) {
 
 	let disposable = vscode.commands.registerCommand('testcafe-extension.start', () => {
-
-        /** ____Instruktionner____
-         * # Input
-         *      - Öppna input box
-         *      - Mata in en URL
-         * 
-         * # Parse
-         *      - Öppna sida med axios
-         *      - Selecta alla grafiska komponenter
-         *      - Gå igenom dom var för sig
-         *      - Plocka ut datan ifrån deras attribut: data-test
-         *      - EX: [ {graphicalDOM: "Button", dataAttr: "knapp1"}, {graphicalDOM: "Button", dataAttr: "knapp2"}, ... ]
-         * 
-         * # Write
-         *      - Skapa en ny fil om det inte finns
-         *      - Skriv till filen
-         */ 
-
-        // const data = fs.readFileSync('C:/Users/anton/Documents/kod mapp/test/testCafé testing/fancy_site.html');
-        // const $ = cheerio.load(data);
-        // let element = $("button");
-        // element.each( (i, el) => {
-        //     let res = $(el).attr("data-test");
-        //     console.log(res);
-        //     console.log("-----------")
-        // }) 
-
         
         // IDÉ: Den borde hämta nuvarande Uri som defualt men om nåt annas har angivis i settings
         //      så borde den hämta Uri ifrån setttings.
