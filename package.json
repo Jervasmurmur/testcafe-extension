@@ -17,7 +17,22 @@
         "command": "testcafe-extension.start",
         "title": "scan"
       }
-    ]
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "This is my config",
+      "properties": {
+          "testcafe-extension.maximum": {
+            "type": "integer",
+            "default": 40,
+            "description": "The level of alignment, how far the titles will extend horizontally."
+          },
+          "testcafe-extension.setting1": {
+            "default": "SETTINGS!!!"
+          }
+
+      }
+  }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
