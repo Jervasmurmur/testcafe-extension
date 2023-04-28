@@ -26,9 +26,8 @@ class graphicalDOM {
 }
 
 const PAGE_MODEL_IMPORT = "import { Selector } from 'testcafe';"
-const PAGE_MODEL_NAME = "class Page {"
 const PAGE_MODEL_CTOR_START = "constructor() {"
-const PAGE_MODEL_DEFAULT = "export default new Page();";
+const PAGE_MODEL_DEFAULT = "export default new";
 
 function PropertyText(element:string, attrData:string) {
     return "readonly " + element + "_" + attrData + ";";
@@ -40,12 +39,12 @@ function propertyAssignmentText(element:string, attrData:string) {
     return text.replace(/ATTR/g, attrData);
 }
 
-function writePageModel(pageModelElements:graphicalDOM[]) {
+function writePageModel(pageModelElements:graphicalDOM[], pageModelName:string) {
     var pageModel = "";
                         
     pageModel += PAGE_MODEL_IMPORT + "\n";
     pageModel += "\n";
-    pageModel += PAGE_MODEL_NAME + "\n";
+    pageModel += "class " + pageModelName + " {\n";
     for (var model of pageModelElements) {
         pageModel += "\t" + PropertyText(model.element, model.dataAttr) + "\n";
     }
@@ -57,7 +56,7 @@ function writePageModel(pageModelElements:graphicalDOM[]) {
     pageModel += "\t}\n";       // Close CTOR
     pageModel += "}\n";     // Close class
     pageModel += "\n";
-    pageModel += PAGE_MODEL_DEFAULT;
+    pageModel += PAGE_MODEL_DEFAULT + " " + pageModelName + ";";
     return pageModel;
 }
 
@@ -76,18 +75,9 @@ function parseCheerio(selector:cheerio.Root, selectElement:string, attribut:stri
     return pageModelElements;
 }
 
-function handleInputs() {
-    return new Promise( (resolve, reject) => {
-        let input = vscode.window.showInputBox().then( (input)=>{
-            return input;
-        } );
-
-        if (input !== undefined) {
-            return resolve(input);
-        } else {
-            return reject("TOM!")
-        } 
-    })
+// Hanterar inte åäö eller andra special bokstäver
+function camalize(str:string) {
+    return str.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase());
 }
 
 function validInput(value:string) {
@@ -134,27 +124,12 @@ export function activate(context: vscode.ExtensionContext) {
         })
         if (inputName === undefined) { return; }
 
-        // user input -> user-input-page-model.ts
-        // user input -> userInputPageModel
-        // 
-        // USER input -> USER-input-page-model.ts
-        // USER-input -> USER-input-page-model.ts
-        // USER input -> userInputPageModel
-        
-        
-        // var fileName = "";
-        // for (let part of fileNameParts) {
-            //     fileName += part.toLowerCase() + "-";
-            //     fileName += part[0].toUpperCase();
-            // }
-            
-        // var fileName = "\\exempel-page-model.ts";
 
         // NOTE: Användaren kan ange en väg med namnet, gör nånting åt?
         var fileName = "\\" + inputName.trim().replace(/\s+/, "-") + "-page-model.ts";
         var newFileUri = vscode.Uri.file(currentPath + fileName);
-
-        var className = "";
+        var className = camalize(inputName) + "PageModel";
+        
         // - Gör allt till små bokstäver?
         // - leta efter en pattern där det är whitespace innan
         // - ta gör förta bokstaven där till storbokstav och resten till små bokstäver
@@ -163,16 +138,6 @@ export function activate(context: vscode.ExtensionContext) {
         // - whitespace ska tas bort
         // - varje del mellan whitespace ska få stor bokstav
         // - dock ska inte första bokstaven ha en stor bosktav
-
-        // const myString = 'user input';
-        // const camelCaseString = myString.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match: string, index: number) => {
-        // if (+match === 0) {
-        //     return ''; // or "-" or "_" or whatever separator you want to use
-        // }
-        // return index === 0 ? match.toLowerCase() : match.toUpperCase();
-        // });
-
-        // console.log(camelCaseString); // Output: "userInput"
 
 
         axios
@@ -195,7 +160,7 @@ export function activate(context: vscode.ExtensionContext) {
                 //       den nuvarande filen med ingenting.
                 edit.createFile(newFileUri, {overwrite : true, ignoreIfExists : false});
 
-                var pageModel = writePageModel(pageModelElements);
+                var pageModel = writePageModel(pageModelElements, className);
 
                 edit.insert(newFileUri, new vscode.Position(0, 0), pageModel);
                 
