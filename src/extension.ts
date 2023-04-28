@@ -127,18 +127,8 @@ export function activate(context: vscode.ExtensionContext) {
 
         // NOTE: Användaren kan ange en väg med namnet, gör nånting åt?
         var fileName = "\\" + inputName.trim().replace(/\s+/, "-") + "-page-model.ts";
-        var newFileUri = vscode.Uri.file(currentPath + fileName);
         var className = camalize(inputName) + "PageModel";
-        
-        // - Gör allt till små bokstäver?
-        // - leta efter en pattern där det är whitespace innan
-        // - ta gör förta bokstaven där till storbokstav och resten till små bokstäver
-        // - check med att göra första bokstaven i strängen till liten bokstav?
-
-        // - whitespace ska tas bort
-        // - varje del mellan whitespace ska få stor bokstav
-        // - dock ska inte första bokstaven ha en stor bosktav
-
+        var newFileUri = vscode.Uri.file(currentPath + fileName);
 
         axios
             .get("https://devexpress.github.io/testcafe/example/")
@@ -183,65 +173,6 @@ export function activate(context: vscode.ExtensionContext) {
         // - insert klass i fil
         // - apply
         // - Spara
-
-
-        /*
-        if(vscode.workspace.workspaceFolders !== undefined) {
-            
-            var workingDictPath = vscode.workspace.workspaceFolders[0].uri;            
-            var currentPath = workingDictPath.fsPath;
-            var newFile = "\\pageModelExempel.ts";
-            var newFileUri = vscode.Uri.file(currentPath + newFile);
-            
-            
-            // TODO: Lägg till cache för förslag till input boxen
-            vscode.window.showInputBox({
-                prompt: "www.ssg/exempel.com",
-                validateInput: (input) => { return validInput(input); }
-            }
-            ).then( (input) => {
-                axios
-                    .get("https://devexpress.github.io/testcafe/example/")
-                    .then((response) => {
-                        const $ = cheerio.load(response.data);
-                        console.log(input);
-                        
-                        const testFile = fs.readFileSync('C:/Users/anton/Documents/kod mapp/test/testCafé testing/fancy_site.html');    // TEST
-                        // const $ = cheerio.load(testFile);   // TEST
-
-                        var pageModelElements: graphicalDOM[] = [];
-
-                        pageModelElements.push.apply(pageModelElements, parseCheerio($, "button", "data-test"));
-                        pageModelElements.push.apply(pageModelElements, parseCheerio($, "input", "data-test"));
-                        
-                        var edit = new vscode.WorkspaceEdit();
-
-                        // TODO: Behöver en bättre check om filen finns och man gör cancelled så finns det en chans att den skriver över
-                        //       den nuvarande filen med ingenting.
-                        edit.createFile(newFileUri, {overwrite : true, ignoreIfExists : false});
-        
-                        var pageModel = writePageModel(pageModelElements);
-        
-                        edit.insert(newFileUri, new vscode.Position(0, 0), pageModel);
-                        
-        
-                        vscode.workspace.applyEdit( edit ).then((applyRes) =>  {
-                            if (!applyRes) { console.log("Apply failed") }  // ERROR LOG
-            
-                        }).then( () => {
-                            // Sparar filen
-                            vscode.workspace.openTextDocument(newFileUri).then( (doc) => {
-                                doc.save();
-                            } )
-                        })
-
-                    }) .catch((err) => console.log("Fetch error " + err));  // ERROR LOG
-            })
-
-        } else {
-            console.log("Didnt find any working directory");
-        }
-        */
 
 	});
 
