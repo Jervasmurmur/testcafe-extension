@@ -162,17 +162,21 @@ export function activate(context: vscode.ExtensionContext) {
                     // Sparar filen
                     vscode.workspace.openTextDocument(newFileUri).then( (doc) => {
                         doc.save();
-                    } )
+                    })
                 })
 
             }) .catch((err) => console.log("Fetch error " + err));  // ERROR LOG
 
-        // - parse DOM-element
-        // - write/create file och namn
-        // - skriv klass
-        // - insert klass i fil
+        // - Mata in url
+        // - Kör puppeteer
+        // - Parsa sida
+        // - Spara parase i datatyp
+        // - Skriv namn på fil
+        // - Skapa fil
+        // - Skriv klass
+        // - Mata in i fil
         // - apply
-        // - Spara
+        // - Spara fil
 
 	});
 
