@@ -136,7 +136,8 @@ export function activate(context: vscode.ExtensionContext) {
                 // const $ = cheerio.load(response.data);
                 console.log(inputUrl);
                 
-                const testFile = fs.readFileSync('C:/Users/anton/Documents/kod mapp/test/testCafé testing/fancy_site.html');    // TEST
+                //const testFile = fs.readFileSync('C:/Users/anton/Documents/kod mapp/test/testCafé testing/fancy_site.html');    // TEST
+                const testFile = fs.readFileSync('C:/Users/AntonEnglundEXT/Documents/VScode projects/testcafe testing/fancy_site.html');    // TEST
                 const $ = cheerio.load(testFile);   // TEST
 
                 var pageModelElements: graphicalDOM[] = [];
