@@ -15,7 +15,7 @@ function wait(ms:number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-class graphicalDOM {
+class elementSelector {
     readonly element;
     readonly dataAttr;
 
@@ -39,7 +39,7 @@ function propertyAssignmentText(element:string, attrData:string) {
     return text.replace(/ATTR/g, attrData);
 }
 
-function writePageModel(pageModelElements:graphicalDOM[], pageModelName:string) {
+function writePageModel(pageModelElements:elementSelector[], pageModelName:string) {
     var pageModel = "";
                         
     pageModel += PAGE_MODEL_IMPORT + "\n";
@@ -61,13 +61,13 @@ function writePageModel(pageModelElements:graphicalDOM[], pageModelName:string) 
 }
 
 function parseCheerio(selector:cheerio.Root, selectElement:string, attribut:string) {
-    var pageModelElements: graphicalDOM[] = []
+    var pageModelElements: elementSelector[] = []
     let res = selector(selectElement);
     res.each( (index:number, element:cheerio.Element) => {
         let attrValue = selector(element).attr(attribut)
 
         if (attrValue) {
-            pageModelElements.push( new graphicalDOM(selectElement, attrValue) )
+            pageModelElements.push( new elementSelector(selectElement, attrValue) )
         } else {
             console.log("element (*visa väg dit) didnt have data-test (*eller annan angiven attribut)");
         }
@@ -125,22 +125,23 @@ export function activate(context: vscode.ExtensionContext) {
         if (inputName === undefined) { return; }
 
 
-        // NOTE: Användaren kan ange en väg med namnet, gör nånting åt?
+        // NOTE: Användaren kan ange en väg med namnet, gör det nånting åt?
         var fileName = "\\" + inputName.trim().replace(/\s+/, "-") + "-page-model.ts";
         var className = camalize(inputName) + "PageModel";
         var newFileUri = vscode.Uri.file(currentPath + fileName);
 
         axios
-            .get("https://devexpress.github.io/testcafe/example/")
+            // .get("https://devexpress.github.io/testcafe/example/")
+            .get(inputUrl)
             .then((response) => {
-                // const $ = cheerio.load(response.data);
+                const $ = cheerio.load(response.data);
                 console.log(inputUrl);
                 
                 //const testFile = fs.readFileSync('C:/Users/anton/Documents/kod mapp/test/testCafé testing/fancy_site.html');    // TEST
-                const testFile = fs.readFileSync('C:/Users/AntonEnglundEXT/Documents/VScode projects/testcafe testing/fancy_site.html');    // TEST
-                const $ = cheerio.load(testFile);   // TEST
+                //const testFile = fs.readFileSync('C:/Users/AntonEnglundEXT/Documents/VScode projects/testcafe testing/fancy_site.html');    // TEST
+                //const $ = cheerio.load(testFile);   // TEST
 
-                var pageModelElements: graphicalDOM[] = [];
+                var pageModelElements: elementSelector[] = [];
 
                 pageModelElements.push.apply(pageModelElements, parseCheerio($, "button", "data-test"));
                 pageModelElements.push.apply(pageModelElements, parseCheerio($, "input", "data-test"));
