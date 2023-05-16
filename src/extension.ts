@@ -8,12 +8,15 @@ import { window } from 'vscode';
 import * as cheerio from 'cheerio';
 import * as fs from 'fs';
 import axios from 'axios';
+import * as puppeteer from 'puppeteer';
+
 
 
 // TESTING
 function wait(ms:number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+
 
 class elementSelector {
     readonly element;
@@ -22,6 +25,29 @@ class elementSelector {
     constructor(element:string, dataAttr:string) {
         this.element = element;
         this. dataAttr = dataAttr;
+    }
+}
+
+async function setup(final_page:string) {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    try {
+    
+        await page.goto('file:///C:/Users/anton/Documents/kod%20mapp/Web/Typescript%20test/start_site.html');
+        
+        await page.setViewport({width: 1080, height: 1024});
+        
+        await page.goto('file:///C:/Users/anton/Documents/kod mapp/test/testCafé testing/fancy_site.html');
+    
+        let html = await page.content();
+
+        await browser.close();
+        return html;
+        
+    } catch (error) {
+        await browser.close();
+        // console.log(error);
+        throw error;
     }
 }
 
@@ -130,16 +156,52 @@ export function activate(context: vscode.ExtensionContext) {
         var className = camalize(inputName) + "PageModel";
         var newFileUri = vscode.Uri.file(currentPath + fileName);
 
+        await setup(inputUrl).then( (htmlDocument) => {
+            console.log("then");
+            const $ = cheerio.load(htmlDocument);
+            var pageModelElements: elementSelector[] = [];
+
+            pageModelElements.push.apply(pageModelElements, parseCheerio($, "button", "data-test"));
+            pageModelElements.push.apply(pageModelElements, parseCheerio($, "input", "data-test"));
+
+            var edit = new vscode.WorkspaceEdit();
+
+            // TODO: Behöver en bättre check om filen finns och man gör cancelled så finns det en chans att den skriver över
+            //       den nuvarande filen med ingenting.
+            edit.createFile(newFileUri, {overwrite : true, ignoreIfExists : false});
+
+            var pageModel = writePageModel(pageModelElements, className);
+
+            edit.insert(newFileUri, new vscode.Position(0, 0), pageModel);
+
+            vscode.workspace.applyEdit( edit ).then((applyRes) =>  {
+                if (!applyRes) { console.log("Apply failed") }  // ERROR LOG
+
+            }).then( () => {
+                // Sparar filen
+                vscode.workspace.openTextDocument(newFileUri).then( (doc) => {
+                    doc.save();
+                })
+            })
+
+
+        }).catch((err) => {
+            console.log(err);
+            return;
+        })
+
+
+        /*
         axios
-            // .get("https://devexpress.github.io/testcafe/example/")
-            .get(inputUrl)
+            .get("https://devexpress.github.io/testcafe/example/")
+            // .get(inputUrl)
             .then((response) => {
-                const $ = cheerio.load(response.data);
+                // const $ = cheerio.load(response.data);
                 console.log(inputUrl);
                 
-                //const testFile = fs.readFileSync('C:/Users/anton/Documents/kod mapp/test/testCafé testing/fancy_site.html');    // TEST
+                const testFile = fs.readFileSync('C:/Users/anton/Documents/kod mapp/test/testCafé testing/fancy_site.html');    // TEST
                 //const testFile = fs.readFileSync('C:/Users/AntonEnglundEXT/Documents/VScode projects/testcafe testing/fancy_site.html');    // TEST
-                //const $ = cheerio.load(testFile);   // TEST
+                const $ = cheerio.load(testFile);   // TEST
 
                 var pageModelElements: elementSelector[] = [];
 
@@ -179,6 +241,7 @@ export function activate(context: vscode.ExtensionContext) {
         // - Mata in i fil
         // - apply
         // - Spara fil
+        */
 
 	});
 
