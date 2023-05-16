@@ -60,10 +60,10 @@ function writePageModel(pageModelElements:elementSelector[], pageModelName:strin
     return pageModel;
 }
 
-function parseCheerio(selector:cheerio.Root, selectElement:string, attribut:string) {
+function parseCheerio(selector:cheerio.CheerioAPI, selectElement:string, attribut:string) {
     var pageModelElements: elementSelector[] = []
     let res = selector(selectElement);
-    res.each( (index:number, element:cheerio.Element) => {
+    res.each((index, element) => {
         let attrValue = selector(element).attr(attribut)
 
         if (attrValue) {
