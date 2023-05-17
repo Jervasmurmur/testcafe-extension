@@ -6,11 +6,12 @@ export async function setup(final_page:string) {
     const page = await browser.newPage();
     try {
     
-        await page.goto('file:///C:/Users/anton/Documents/kod%20mapp/Web/Typescript%20test/start_site.html');
+        // await page.goto('file:///C:/Users/anton/Documents/kod%20mapp/Web/Typescript%20test/start_site.html');
+        // await page.goto('https://developer.chrome.com/');
         
         await page.setViewport({width: 1080, height: 1024});
         
-        await page.goto('file:///C:/Users/anton/Documents/kod mapp/test/testCafé testing/fancy_site.html');
+        // await page.goto('file:///C:/Users/anton/Documents/kod mapp/test/testCafé testing/fancy_site.html');
     
         let html = await page.content();
 

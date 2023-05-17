@@ -25,12 +25,16 @@ const PAGE_MODEL_IMPORT = "import { Selector } from 'testcafe';"
 const PAGE_MODEL_CTOR_START = "constructor() {"
 const PAGE_MODEL_DEFAULT = "export default new";
 
+function createValidVariableName(value:string) {
+    return value.replace(/^[0-9]+|[^a-zA-Z0-9$-\s]/g, '').replace(/[-\s]/g, '_');
+}
+
 function propertyName(element:string, attrData:string) {
-    return "readonly " + element + "_" + attrData + ";";
+    return "readonly " + element + "_" + createValidVariableName(attrData) + ";";
 }
 
 function propertyAssignmentText(model:parser.elementSelector) {
-    return "this." + model.element + "_" + model.attrValue + " = Selector(\"" + model.query + "\");"
+    return "this." + model.element + "_" + createValidVariableName(model.attrValue) + " = Selector(\"" + model.query + "\");"
     // var text = "this.ELE_ATTR = Selector(\"SELECTQUERY\");"
     // text = text.replace(/ELE/g, model.element);
     // text = text.replace(/ATTR/g, model.attrValue);
@@ -71,21 +75,21 @@ function getSelector($:cheerio.CheerioAPI, selectElement:cheerio.Cheerio<cheerio
         if (attrValue) {
             pageModelElements.push( attrValue )
         } else {
-            console.log("element (*visa väg dit) didnt have data-test (*eller annan angiven attribut)");
-            const rightArrowParents:string[] = [];
-            $(element.tagName)
-                .parents()
-                .addBack()
-                .not("html")
-                .each(function () {
-                    let entry = element.tagName.toLowerCase();
-                    const className = element.attribs["class"].trim();
-                    if (className) {
-                        entry += "." + className.replace(/ +/g, ".");
-                    }
-                    rightArrowParents.push(entry);
-                });
-            console.log(rightArrowParents.join(" "));
+            console.log("Couldnt find selector: " + element.sourceCodeLocation);
+            // const rightArrowParents:string[] = [];
+            // $(element.tagName)
+            //     .parents()
+            //     .addBack()
+            //     .not("html")
+            //     .each(function () {
+            //         let entry = element.tagName.toLowerCase();
+            //         const className = element.attribs["class"].trim();
+            //         if (className) {
+            //             entry += "." + className.replace(/ +/g, ".");
+            //         }
+            //         rightArrowParents.push(entry);
+            //     });
+            // console.log(rightArrowParents.join(" "));
         }
     }) 
     return pageModelElements;
@@ -146,11 +150,12 @@ export function activate(context: vscode.ExtensionContext) {
         var className = camalize(inputName) + "PageModel";
         var newFileUri = vscode.Uri.file(currentPath + fileName);
 
+        
         await pre.setup(inputUrl).then( (htmlDocument) => {
             const $ = cheerio.load(htmlDocument);
             var pageModelElements: parser.elementSelector[] = [];
 
-            pageModelElements.push.apply(pageModelElements, getSelector($, $("button"), testAttr.selectorConfig));
+            pageModelElements.push.apply(pageModelElements, getSelector($, $("div"), testAttr.selectorConfig));
             pageModelElements.push.apply(pageModelElements, getSelector($, $("input"), testAttr.selectorConfig));
 
             var edit = new vscode.WorkspaceEdit();
@@ -178,59 +183,6 @@ export function activate(context: vscode.ExtensionContext) {
             console.log(err);
             return;
         })
-
-
-        /*
-        axios
-            .get("https://devexpress.github.io/testcafe/example/")
-            // .get(inputUrl)
-            .then((response) => {
-                // const $ = cheerio.load(response.data);
-                console.log(inputUrl);
-                
-                const testFile = fs.readFileSync('C:/Users/anton/Documents/kod mapp/test/testCafé testing/fancy_site.html');    // TEST
-                //const testFile = fs.readFileSync('C:/Users/AntonEnglundEXT/Documents/VScode projects/testcafe testing/fancy_site.html');    // TEST
-                const $ = cheerio.load(testFile);   // TEST
-
-                var pageModelElements: elementSelector[] = [];
-
-                pageModelElements.push.apply(pageModelElements, parseCheerio($, "button", "data-test"));
-                pageModelElements.push.apply(pageModelElements, parseCheerio($, "input", "data-test"));
-                
-                var edit = new vscode.WorkspaceEdit();
-
-                // TODO: Behöver en bättre check om filen finns och man gör cancelled så finns det en chans att den skriver över
-                //       den nuvarande filen med ingenting.
-                edit.createFile(newFileUri, {overwrite : true, ignoreIfExists : false});
-
-                var pageModel = writePageModel(pageModelElements, className);
-
-                edit.insert(newFileUri, new vscode.Position(0, 0), pageModel);
-                
-
-                vscode.workspace.applyEdit( edit ).then((applyRes) =>  {
-                    if (!applyRes) { console.log("Apply failed") }  // ERROR LOG
-
-                }).then( () => {
-                    // Sparar filen
-                    vscode.workspace.openTextDocument(newFileUri).then( (doc) => {
-                        doc.save();
-                    })
-                })
-
-            }) .catch((err) => console.log("Fetch error " + err));  // ERROR LOG
-
-        // - Mata in url
-        // - Kör puppeteer
-        // - Parsa sida
-        // - Spara parase i datatyp
-        // - Skriv namn på fil
-        // - Skapa fil
-        // - Skriv klass
-        // - Mata in i fil
-        // - apply
-        // - Spara fil
-        */
 
 	});
 

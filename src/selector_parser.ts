@@ -82,9 +82,10 @@ export function parseAttribute($:cheerio.CheerioAPI, element:cheerio.Element, se
         // console.log("////////////////////////")
 
 
-
         if (config.relation === relation.child) {
+            console.log(config.attribut);
             var attrValue = $(element).children('[' + config.attribut + ']').attr(config.attribut);
+            console.log(attrValue);
             if (attrValue) {
                 attrQuery.push( { 
                     attr:config.attribut,
