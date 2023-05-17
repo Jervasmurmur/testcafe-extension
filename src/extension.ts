@@ -8,7 +8,10 @@ import { window } from 'vscode';
 import * as cheerio from 'cheerio';
 import * as fs from 'fs';
 import axios from 'axios';
-import * as puppeteer from 'puppeteer';
+import * as parser from './selector_parser';
+import * as testAttr from './test_data';
+import * as pre from './predefinied_setup';
+
 
 
 
@@ -18,66 +21,37 @@ function wait(ms:number) {
 }
 
 
-class elementSelector {
-    readonly element;
-    readonly dataAttr;
-
-    constructor(element:string, dataAttr:string) {
-        this.element = element;
-        this. dataAttr = dataAttr;
-    }
-}
-
-async function setup(final_page:string) {
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    try {
-    
-        await page.goto('file:///C:/Users/anton/Documents/kod%20mapp/Web/Typescript%20test/start_site.html');
-        
-        await page.setViewport({width: 1080, height: 1024});
-        
-        await page.goto('file:///C:/Users/anton/Documents/kod mapp/test/testCafé testing/fancy_site.html');
-    
-        let html = await page.content();
-
-        await browser.close();
-        return html;
-        
-    } catch (error) {
-        await browser.close();
-        // console.log(error);
-        throw error;
-    }
-}
-
 const PAGE_MODEL_IMPORT = "import { Selector } from 'testcafe';"
 const PAGE_MODEL_CTOR_START = "constructor() {"
 const PAGE_MODEL_DEFAULT = "export default new";
 
-function PropertyText(element:string, attrData:string) {
+function propertyName(element:string, attrData:string) {
     return "readonly " + element + "_" + attrData + ";";
 }
 
-function propertyAssignmentText(element:string, attrData:string) {
-    var text = "this.ELE_ATTR = Selector(\"ELE[data-test='ATTR']\");"
-    text = text.replace(/ELE/g, element);
-    return text.replace(/ATTR/g, attrData);
+function propertyAssignmentText(model:parser.elementSelector) {
+    return "this." + model.element + "_" + model.attrValue + " = Selector(\"" + model.query + "\");"
+    // var text = "this.ELE_ATTR = Selector(\"SELECTQUERY\");"
+    // text = text.replace(/ELE/g, model.element);
+    // text = text.replace(/ATTR/g, model.attrValue);
+    // return text.replace(/SELECTQUERY/g, model.query);
 }
 
-function writePageModel(pageModelElements:elementSelector[], pageModelName:string) {
+function writePageModel(pageModelElements:parser.elementSelector[], pageModelName:string) {
     var pageModel = "";
-                        
+
+    
     pageModel += PAGE_MODEL_IMPORT + "\n";
     pageModel += "\n";
     pageModel += "class " + pageModelName + " {\n";
     for (var model of pageModelElements) {
-        pageModel += "\t" + PropertyText(model.element, model.dataAttr) + "\n";
+        pageModel += "\t" + propertyName(model.element, model.attrValue) + "\n";
     }
     pageModel += "\n";
     pageModel += "\t" + PAGE_MODEL_CTOR_START + "\n";
     for (var model of pageModelElements) {
-        pageModel += "\t\t" + propertyAssignmentText(model.element, model.dataAttr) + "\n";
+        console.log("The current query: " + model.query)
+        pageModel += "\t\t" + propertyAssignmentText(model) + "\n";
     }
     pageModel += "\t}\n";       // Close CTOR
     pageModel += "}\n";     // Close class
@@ -86,16 +60,32 @@ function writePageModel(pageModelElements:elementSelector[], pageModelName:strin
     return pageModel;
 }
 
-function parseCheerio(selector:cheerio.CheerioAPI, selectElement:string, attribut:string) {
-    var pageModelElements: elementSelector[] = []
-    let res = selector(selectElement);
-    res.each((index, element) => {
-        let attrValue = selector(element).attr(attribut)
+function getSelector($:cheerio.CheerioAPI, selectElement:cheerio.Cheerio<cheerio.Element>, attribut:parser.selectConfig[]) {
+    var pageModelElements: parser.elementSelector[] = []
+
+    selectElement.each((index, element) => {
+        // let attrValue = $(element).attr(attribut)
+
+        let attrValue = parser.getValidAttributeSelector($, element, attribut)
 
         if (attrValue) {
-            pageModelElements.push( new elementSelector(selectElement, attrValue) )
+            pageModelElements.push( attrValue )
         } else {
             console.log("element (*visa väg dit) didnt have data-test (*eller annan angiven attribut)");
+            const rightArrowParents:string[] = [];
+            $(element.tagName)
+                .parents()
+                .addBack()
+                .not("html")
+                .each(function () {
+                    let entry = element.tagName.toLowerCase();
+                    const className = element.attribs["class"].trim();
+                    if (className) {
+                        entry += "." + className.replace(/ +/g, ".");
+                    }
+                    rightArrowParents.push(entry);
+                });
+            console.log(rightArrowParents.join(" "));
         }
     }) 
     return pageModelElements;
@@ -156,13 +146,12 @@ export function activate(context: vscode.ExtensionContext) {
         var className = camalize(inputName) + "PageModel";
         var newFileUri = vscode.Uri.file(currentPath + fileName);
 
-        await setup(inputUrl).then( (htmlDocument) => {
-            console.log("then");
+        await pre.setup(inputUrl).then( (htmlDocument) => {
             const $ = cheerio.load(htmlDocument);
-            var pageModelElements: elementSelector[] = [];
+            var pageModelElements: parser.elementSelector[] = [];
 
-            pageModelElements.push.apply(pageModelElements, parseCheerio($, "button", "data-test"));
-            pageModelElements.push.apply(pageModelElements, parseCheerio($, "input", "data-test"));
+            pageModelElements.push.apply(pageModelElements, getSelector($, $("button"), testAttr.selectorConfig));
+            pageModelElements.push.apply(pageModelElements, getSelector($, $("input"), testAttr.selectorConfig));
 
             var edit = new vscode.WorkspaceEdit();
 
