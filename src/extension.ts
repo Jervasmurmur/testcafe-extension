@@ -160,8 +160,6 @@ export function activate(context: vscode.ExtensionContext) {
         })
 
         
-        
-        /*
         await pre.setup(inputUrl).then( (htmlDocument) => {
             const $ = cheerio.load(htmlDocument);
             var pageModelElements: parser.elementSelector[] = [];
@@ -194,7 +192,6 @@ export function activate(context: vscode.ExtensionContext) {
             console.log(err);
             return;
         })
-        */
 
 	});
 
