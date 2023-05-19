@@ -10,7 +10,7 @@ import * as fs from 'fs';
 import axios from 'axios';
 import * as parser from './selector_parser';
 import * as testAttr from './test_data';
-import * as pre from './predefinied_setup';
+import * as pre from './predefined_setup';
 
 
 
@@ -150,7 +150,18 @@ export function activate(context: vscode.ExtensionContext) {
         var className = camalize(inputName) + "PageModel";
         var newFileUri = vscode.Uri.file(currentPath + fileName);
 
+        await pre.setup(inputUrl).then( (htmlDocument) => {
+            const $ = cheerio.load(htmlDocument);
+            console.log( $("div").length);
+
+        }).catch((err) => {
+            console.log(err);
+            return;
+        })
+
         
+        
+        /*
         await pre.setup(inputUrl).then( (htmlDocument) => {
             const $ = cheerio.load(htmlDocument);
             var pageModelElements: parser.elementSelector[] = [];
@@ -183,6 +194,7 @@ export function activate(context: vscode.ExtensionContext) {
             console.log(err);
             return;
         })
+        */
 
 	});
 
