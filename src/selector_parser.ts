@@ -81,11 +81,14 @@ export function parseAttribute($:cheerio.CheerioAPI, element:cheerio.Element, se
         // console.log(config.relation)
         // console.log("////////////////////////")
 
+        // console.log("-------------------");
+        // console.log(element.tagName);
+        // console.log($(element).attr());
 
         if (config.relation === relation.child) {
-            console.log(config.attribut);
+            // console.log(config.attribut);
             var attrValue = $(element).children('[' + config.attribut + ']').attr(config.attribut);
-            console.log(attrValue);
+            // console.log("child-attr: ",  attrValue);
             if (attrValue) {
                 attrQuery.push( { 
                     attr:config.attribut,
@@ -96,6 +99,7 @@ export function parseAttribute($:cheerio.CheerioAPI, element:cheerio.Element, se
         
         } else if (config.relation === relation.parent) {
             var attrValue = $(element).parent('[' + config.attribut + ']').attr(config.attribut);
+            // console.log("parent-attr: ",  attrValue);
             if (attrValue) {
                 attrQuery.push( { 
                     attr:config.attribut,
@@ -103,10 +107,11 @@ export function parseAttribute($:cheerio.CheerioAPI, element:cheerio.Element, se
                     nodeRelation:relation.parent
                 })
             }
-        
-            } else {
-                var attrValue = $(element).attr(config.attribut);
-                if (attrValue) {
+            
+        } else {
+            var attrValue = $(element).attr(config.attribut);
+            // console.log("attr: ",  attrValue);
+            if (attrValue) {
                     attrQuery.push( { 
                         attr:config.attribut,
                         value:attrValue,

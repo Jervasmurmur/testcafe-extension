@@ -3,7 +3,7 @@ import * as puppeteer from 'puppeteer';
 
 // NOTE: Används final_page när testning är klar
 export async function setup(final_page:string) {
-    const browser = await puppeteer.launch({headless:false});   // TEST: Icke headless vid debugging 
+    const browser = await puppeteer.launch({headless:true});   // TEST: Icke headless vid debugging 
     const page = await browser.newPage();
     try {
     
@@ -15,27 +15,51 @@ export async function setup(final_page:string) {
 
         // await page.goto('file:///C:/Users/anton/Documents/kod%20mapp/Web/Typescript%20test/start_site.html');    // TEST
 
-        // NOTE: Kan nog låta den gå till angiven sida direkt, kommer ju till inloggning hur som helst
-        await page.goto('https://login-utv.ssgsolutions.com/d923a467-48cc-4b99-96ce-1a312ce4a1e3/b2c_1a_profilesigninphoneemailpassword/oauth2/v2.0/authorize?client_id=8142daa1-8fbc-4748-b966-d7e4655455e4&redirect_uri=https%3A%2F%2Fssg-utv-sales-app.azurewebsites.net%2Fsignin-oidc&response_type=id_token&scope=openid%20profile%20email&response_mode=form_post&nonce=638199277395409507.Mzg1NWJmZWUtYTAyNy00ZWQ3LThhZWUtYzAwNzlhYTMzNGNkMGUzMTUxMmYtMThjZi00OGY2LWE3ZTgtMzA0Y2JmZTdkMjQw&state=CfDJ8Iar7jqh_bRLjrCmMixccrxeWbskBYBSn_0121CeOq1ZpXh22MjYRkOcMfu4fMzJzplWTWxw4kK2T6OC6dxOMtUnPuJgg7zdRyOJQNKCT4tWCBUwI0JY51BUJQDOwCT4GubNfbitsVDBXFkjmex7LBqzcJAe-4C9zfxlVPihmKarP8c4KUQ81R3xlrWFuwL9kwu0uwqVvG4l2TL85JesxIcZmPAb_0WG-8ZZ_kM5SRVWMCXv2yRWo54nE0IWWSuPKx_uNOZg1783MJFfmwvm6SJeNX3aBeeYvaArofBz6v7FLncNmNIxhGIGb4-TDhUblQG1MrmlJGijZnoZ35EN3aUgNVsiil931WXHsLBO2qrod-hP-BV4Zq55vW30CcrJDA&x-client-SKU=ID_NET6_0&x-client-ver=6.21.0.0');
+        // await page.goto('file:///C:/Users/AntonEnglundEXT/Documents/VScode%20projects/Typescript_test/ssg-company-test.html');
+        await page.goto('https://ssg-utv-sales-app.azurewebsites.net/');
+        // await page.goto('https://ssg-utv-sales-app.azurewebsites.net/companies');
+        // await page.goto('https://ssg-utv-sales-app.azurewebsites.net/subscriptionOrder/1876');
         
-        // await page.waitForTimeout(4000); // TEST
+        await page.waitForTimeout(4000); // TEST
         
         await page.setViewport({width: 1080, height: 1024});
-
+        
         await page.waitForSelector("#signInName");
         await page.type("#signInName", anv);
         await page.click("#next");
-
-        await page.waitForSelector(pass);
-        await page.type("#password", "");
+        
+        await page.waitForSelector("#password");
+        await page.type("#password", pass);
         await page.click("#next");
         
-        await page.goto('https://ssg-utv-sales-app.azurewebsites.net/');
+        // <a class="frame-module_frame__nav-item__42-eu" href="/companies"><span>Företag</span></a>
+        // #root > div.frame-module_frame__MmY3E > div.frame-module_frame__nav__-bd5K
+        // #root > div.frame-module_frame__MmY3E > div.frame-module_frame__nav__-bd5K
+        // #tab--27--0
+        // #root > div.frame-module_frame__MmY3E > div.frame-module_frame__body__6EUSp > div > div.display-flex > div > div > input
+        
+        await page.waitForSelector("#tab--1--1");
+        await page.click("#tab--1--1");
+        // await page.waitForSelector("#root > div.frame-module_frame__MmY3E > div.frame-module_frame__body__6EUSp > div > div.display-flex > div > div > input");
+        await page.type("#root > div.frame-module_frame__MmY3E > div.frame-module_frame__body__6EUSp > div > div.display-flex > div > div > input", "test");
+        // <a class="" href="/subscriptionOrder/1876">Testföretaget AB</a>
+        await page.waitForSelector("a[href='/subscriptionOrder/1876']");
+        await page.click("a[href='/subscriptionOrder/1876']");
+        // <a class="" href="/subscriptionOrder/1876">Testföretaget AB</a>
+        // document.querySelector("#panel--1--1 > div > div > table > tbody > tr:nth-child(50) > td:nth-child(1) > a")
+        // #panel--1--1 > div > div > table > tbody > tr:nth-child(8) > td:nth-child(1) > a
+        // #panel--1--1 > div > div > table > tbody > tr:nth-child(50) > td:nth-child(1) > a
+
+        
+        await page.waitForTimeout(4000); // TEST
+        // await page.waitForSelector("#root > div.frame-module_frame__MmY3E > div.frame-module_frame__nav__-bd5K.frame-module_frame__nav--active__wEd0G > div.frame-module_frame__nav-list__ferqU > div > a:nth-child(2) > span");
+        // await page.click("#root > div.frame-module_frame__MmY3E > div.frame-module_frame__nav__-bd5K.frame-module_frame__nav--active__wEd0G > div.frame-module_frame__nav-list__ferqU > div > a:nth-child(2) > span");
+        // await page.waitForTimeout(4000); // TEST
         // await page.goto('file:///C:/Users/anton/Documents/kod mapp/test/testCafé testing/fancy_site.html');      // TEST
         
         let html = await page.content();
         
-        await page.waitForTimeout(20000);
+        // await page.waitForTimeout(20000);
         await browser.close();
         return html;
         
