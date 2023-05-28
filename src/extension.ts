@@ -91,12 +91,13 @@ function getSelector($:cheerio.CheerioAPI, selectElement:cheerio.Cheerio<cheerio
         let attrValue = parser.getValidAttributeSelector($, element, attribut)
         
         if (attrValue) {
-            console.log("Created selector for:" + element.name);
+            console.log("Created selector for:", element.name);
             console.log($(element).attr())
             console.log("Selector: " + attrValue.query);
             pageModelElements.push( attrValue )
         } else {
-            console.log("Couldnt find selector:" , element.name);
+            // console.log("Couldnt find selector:" , element.name);
+            console.error("Couldnt find selector:" , element.name)
             console.log($(element).attr())
             // const rightArrowParents:string[] = [];
             // $(element.tagName)
@@ -189,7 +190,7 @@ export function activate(context: vscode.ExtensionContext) {
         // TEST
 
 
-        await pre.setup(inputUrl).then( (htmlDocument) => {
+        await pre.setup_2(inputUrl).then( (htmlDocument) => {
             const $ = cheerio.load(htmlDocument);
             var pageModelElements: parser.elementSelector[] = [];
 

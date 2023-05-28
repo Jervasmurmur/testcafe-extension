@@ -2,7 +2,7 @@ import * as puppeteer from 'puppeteer';
 
 
 // NOTE: Används final_page när testning är klar
-export async function setup(final_page:string) {
+export async function setup_1(final_page:string) {
     const browser = await puppeteer.launch({headless:true});   // TEST: Icke headless vid debugging 
     const page = await browser.newPage();
     try {
@@ -56,6 +56,33 @@ export async function setup(final_page:string) {
         // await page.click("#root > div.frame-module_frame__MmY3E > div.frame-module_frame__nav__-bd5K.frame-module_frame__nav--active__wEd0G > div.frame-module_frame__nav-list__ferqU > div > a:nth-child(2) > span");
         // await page.waitForTimeout(4000); // TEST
         // await page.goto('file:///C:/Users/anton/Documents/kod mapp/test/testCafé testing/fancy_site.html');      // TEST
+        
+        let html = await page.content();
+        
+        // await page.waitForTimeout(20000);
+        await browser.close();
+        return html;
+        
+    } catch (error) {
+        await browser.close();
+        // console.log(error);
+        throw error;
+    }
+}
+
+export async function setup_2(final_page:string) {
+    const browser = await puppeteer.launch({headless:false});   // TEST: Icke headless vid debugging 
+    const page = await browser.newPage();
+    try {
+
+        await page.goto('https://devexpress.github.io/testcafe/example/');
+        // await page.goto('https://developer.chrome.com/', {waitUntil: "domcontentloaded" });
+
+
+        // await page.waitForSelector("a[class='bg-blue-medium button-filled button-round color-bg display-inline-flex gap-top-400 material-button']");
+        // await page.waitForTimeout(4000);
+        // await page.focus("a[class='bg-blue-medium button-filled button-round color-bg display-inline-flex gap-top-400 material-button']");
+        // await page.waitForTimeout(4000);
         
         let html = await page.content();
         

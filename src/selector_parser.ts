@@ -86,9 +86,13 @@ export function parseAttribute($:cheerio.CheerioAPI, element:cheerio.Element, se
         // console.log($(element).attr());
 
         if (config.relation === relation.child) {
-            // console.log(config.attribut);
-            var attrValue = $(element).children('[' + config.attribut + ']').attr(config.attribut);
-            // console.log("child-attr: ",  attrValue);
+
+            // Letar bara i direkta barn
+            // var attrValue = $(element).children('[' + config.attribut + ']').attr(config.attribut);
+
+            // Letar efter alla ättligar till element
+            var attrValue = $(element).find('[' + config.attribut + ']').attr(config.attribut);
+
             if (attrValue) {
                 attrQuery.push( { 
                     attr:config.attribut,
@@ -99,7 +103,7 @@ export function parseAttribute($:cheerio.CheerioAPI, element:cheerio.Element, se
         
         } else if (config.relation === relation.parent) {
             var attrValue = $(element).parent('[' + config.attribut + ']').attr(config.attribut);
-            // console.log("parent-attr: ",  attrValue);
+            
             if (attrValue) {
                 attrQuery.push( { 
                     attr:config.attribut,
@@ -110,7 +114,7 @@ export function parseAttribute($:cheerio.CheerioAPI, element:cheerio.Element, se
             
         } else {
             var attrValue = $(element).attr(config.attribut);
-            // console.log("attr: ",  attrValue);
+            
             if (attrValue) {
                     attrQuery.push( { 
                         attr:config.attribut,
