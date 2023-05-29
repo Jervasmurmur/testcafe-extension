@@ -94,25 +94,12 @@ function getSelector($:cheerio.CheerioAPI, selectElement:cheerio.Cheerio<cheerio
             console.log("Created selector for:", element.name);
             console.log($(element).attr())
             console.log("Selector: " + attrValue.query);
+            console.log(getPath($, element))
             pageModelElements.push( attrValue )
         } else {
-            // console.log("Couldnt find selector:" , element.name);
             console.error("Couldnt find selector:" , element.name)
             console.log($(element).attr())
-            // const rightArrowParents:string[] = [];
-            // $(element.tagName)
-            //     .parents()
-            //     .addBack()
-            //     .not("html")
-            //     .each(function () {
-                //         let entry = element.tagName.toLowerCase();
-                //         const className = element.attribs["class"].trim();
-                //         if (className) {
-                    //             entry += "." + className.replace(/ +/g, ".");
-                    //         }
-                    //         rightArrowParents.push(entry);
-                    //     });
-                    // console.log(rightArrowParents.join(" "));
+            console.log(getPath($, element))
             }
             console.log("- - - - - - - - - - - - -")
             })
@@ -127,6 +114,43 @@ function getSelector($:cheerio.CheerioAPI, selectElement:cheerio.Cheerio<cheerio
 function camalize(str:string) {
     return str.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase());
 }
+
+function getPath($:cheerio.CheerioAPI, selectElement: cheerio.Element) {
+    const path: string[] = [];
+    
+    while ( !($(selectElement).is($("root"))) && !($(selectElement).is($("html"))) )  {
+
+        let elementName = selectElement.name;
+        let index = $(selectElement).index(); 
+        let id = selectElement.attribs['id'];
+        let classes = selectElement.attribs["class"];
+
+        let elementSelector = elementName;
+
+        if (($(selectElement).is($("body")))) {
+            path.push(elementSelector);
+            break;
+        }
+        
+        if (id) {
+            elementSelector += `#${id}`;
+
+        } else if ( $("[class= '" + classes + "']").length < 2 && classes) {
+            elementSelector += `.${classes.replace(/\s+/g, '.')}`;
+
+        } else if ($(selectElement).siblings().length){
+            elementSelector += `:nth-child(${index + 1})`;
+        }
+      
+        // selector = `${elementSelector} ${selector}`;
+        path.push(elementSelector);
+        let parent = ($(selectElement).parent())[0];
+        selectElement = parent;
+    }
+
+    return path.reverse().join(' > ').trim();
+}
+
 
 function validInput(value:string) {
     if (value.trim().length === 0) {
